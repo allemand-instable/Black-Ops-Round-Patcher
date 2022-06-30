@@ -1,4 +1,6 @@
 use std::fs;
+use std::path::Path;
+use clearscreen::clear;
 // use std::io::stdin;
 
 // https://stackoverflow.com/questions/30355185/how-to-read-an-integer-input-from-the-user-in-rust-1-0
@@ -39,10 +41,10 @@ macro_rules! read_vec {
 fn main() {
     loop {
         
-        println!("Please enter a round patch (0 for original patch file | 999 to quit) : ");
-        read!(input_round as i32);
+        println!("Please enter a round patch \n - 1 for original patch file \n - \"quit\" to exit program \n your input : ");
+        read!(input_round as String);
         
-        if input_round == 999
+        if input_round == "quit"
         {
             break;
         }
@@ -55,7 +57,7 @@ fn main() {
     }
 }
 
-fn copy_patch_to_zone_folder(round_number : i32) -> std::io::Result<()>
+fn copy_patch_to_zone_folder(round_number : String) -> std::io::Result<()>
 {
     let root_path = "./Patches/";
 
@@ -63,17 +65,35 @@ fn copy_patch_to_zone_folder(round_number : i32) -> std::io::Result<()>
 
     let round_patch_path;
 
-    if round_number == 0 {    
+    if round_number == "1" {    
         round_patch_path = ["bkp/common_zombie_patch.ff"].join("");
     }
 
     else {
-        round_patch_path = ["R", &round_number.to_string(),  defaut_path_backup].join("");
+        round_patch_path = ["R", &round_number,  defaut_path_backup].join("");
     }
+
     
     let from_path = [root_path, &round_patch_path].join("");
-
-
-    fs::copy(from_path, "./zone/Common/common_zombie_patch.ff")?;
+    if path_exists(&from_path)
+    {
+        fs::copy(from_path, "./zone/Common/common_zombie_patch.ff")?;
+        clear();
+        println!("Copied !");
+    }
+    else 
+    {
+        clear();
+        println!("The folder does not exist, try another round number...\n");
+    }
     return Ok(())
+
+}
+
+
+fn path_exists( path_String_ref : &String ) -> bool
+{
+    let path_exists_bool : bool = Path::new(path_String_ref).exists();
+    println!("{} exists ? {}", path_String_ref, path_exists_bool);
+    return path_exists_bool
 }
